@@ -1,0 +1,46 @@
+part_name,part_number,machine_code,category,location,quantity,unit,min_quantity,stock_breakdown
+Infeed Starwheel (สตาร์วีลป้อนขวด),KR-SW-IN-001,lb101,Mechanical,ชั้นวางสต็อก A-1,3,ชิ้น,1,False
+Outfeed Starwheel (สตาร์วีลส่งออกขวด),KR-SW-OUT-001,lb101,Mechanical,ชั้นวางสต็อก A-1,2,ชิ้น,1,False
+Label Roll LB101 (ม้วนฉลาก Krones),KR-LBL-001,lb101,Consumable,ชั้นวางสต็อก B-1,15,ม้วน,5,False
+Hotmelt Glue Block (กาวร้อน),KR-GLU-001,lb101,Consumable,ห้องเก็บสารเคมี,8,กิโลกรัม,2,False
+ASI Safety Module AA_ASI_AS_LT,KR-ASI-001,lb101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-1,1,ชิ้น,1,True
+SDC Servo Drive Module,KR-SDC-001,lb101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-1,0,ชิ้น,1,True
+Pressing Belt (สายพานกดฉลาก),KR-BLT-001,lb101,Mechanical,ชั้นวางสต็อก A-2,2,เส้น,1,False
+Label Transfer Drum Bearing (ลูกปืน Drum),KR-BRG-001,lb101,Mechanical,ชั้นวางสต็อก A-2,4,ชิ้น,2,False
+Servo Motor Cooling Fan,KR-FAN-001,lb101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-2,2,ชิ้น,1,False
+Grease Fuchs Renolit HLT2 (จาระบี Krones),KR-GRS-001,lb101,Lubricant,ห้องเก็บสารเคมี,5,กระปุก,2,False
+Synthetic Gear Oil ISO VG 220 (น้ำมันเกียร์),KR-OIL-001,lb101,Lubricant,ห้องเก็บสารเคมี,3,ลิตร,1,False
+Label Cutting Blade Krones (ใบมีดตัดฉลาก),KR-BLD-001,lb101,Mechanical,ชั้นวางสต็อก A-2,6,ชิ้น,2,False
+Worm Gear Multi-Worm-Control Component,KR-WRM-001,lb101,Mechanical,ตู้ล็อก VIP,1,ชิ้น,1,True
+CLX Controller Module (โมดูล PLC),KR-CLX-001,lb101,Electrical,ตู้ล็อก VIP,0,ชิ้น,1,True
+Guide Rail LB101 (ราวนำขวด),KR-GRL-001,lb101,Mechanical,ชั้นวางสต็อก A-1,4,เส้น,2,False
+Ink Ribbon / Print Ribbon SB101 (ริบบอนพิมพ์),WB-RBN-001,sb101,Consumable,ชั้นวางสต็อก B-2,20,ม้วน,5,False
+Label Roll 300mm Core 76mm (ม้วนฉลาก Weber),WB-LBL-001,sb101,Consumable,ชั้นวางสต็อก B-1,25,ม้วน,8,False
+Peeler Bar / Peeler Blade (แท่ง Peeler),WB-PLR-001,sb101,Mechanical,ชั้นวางสต็อก C-1,3,ชิ้น,1,False
+Label Gap Sensor (เซนเซอร์ช่องฉลาก),WB-SEN-LBL-001,sb101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-1,2,ชิ้น,1,False
+Product Sensor Wenglor LD86PTC,WB-SEN-PRD-001,sb101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-1,1,ชิ้น,1,True
+Friction Wheel 63.6mm (ล้อแรงเสียดทาน),61801017,sb101,Mechanical,ชั้นวางสต็อก C-1,4,ชิ้น,2,False
+Encoder Standard 2000 ppr (เอ็นโค้ดเดอร์),33003611,sb101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-2,2,ชิ้น,1,False
+Vacuum Generator (เครื่องสร้างสุญญากาศ),WB-VAC-001,sb101,Pneumatic,ชั้นวางสต็อก C-1,2,ชิ้น,1,False
+Dancer Arm Spring (สปริง Dancer Arm),WB-SPR-001,sb101,Mechanical,ชั้นวางสต็อก C-1,5,ชิ้น,2,False
+Belt Brake Assembly (ชุดเบรกสายพาน),WB-BRK-001,sb101,Mechanical,ชั้นวางสต็อก C-1,1,ชุด,1,True
+Air Filter Element SB101 (ไส้กรองลม),WB-FLT-001,sb101,Pneumatic,ชั้นวางสต็อก C-2,10,ชิ้น,3,False
+Cleaning Set Weber (ชุดทำความสะอาด),21800981,sb101,Consumable,ชั้นวางสต็อก B-2,4,ชุด,2,False
+Roller Solvent Weber (น้ำยาล้าง Roller),21800977,sb101,Consumable,ห้องเก็บสารเคมี,6,ขวด,2,False
+Pneumatic Cylinder Tamp (กระบอกลมแทมป์),WB-CYL-001,sb101,Pneumatic,ชั้นวางสต็อก C-2,2,ชิ้น,1,False
+Low Label Sensor (เซนเซอร์ฉลากใกล้หมด),WB-SEN-LOW-001,sb101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-2,3,ชิ้น,1,False
+Cutting Blade SW101 (ใบมีดตัดฟิล์ม),SP-BLD-001,sw101,Mechanical,ชั้นวางสต็อก D-1,8,ชิ้น,3,False
+Heating Element 220V (ฮีตเตอร์แท่งเชื่อม),SP-HTR-001,sw101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-2,3,ชิ้น,1,False
+Oven Conveyor Belt (สายพานเตาอบ),SP-BLT-OVN-001,sw101,Mechanical,ชั้นวางสต็อก D-1,1,เส้น,1,True
+Oven Mat Chain (โซ่สายพานเตา),SP-CHN-001,sw101,Mechanical,ชั้นวางสต็อก D-1,2,เส้น,1,False
+Cooling Fan SW101 (พัดลมระบายความร้อน),SP-FAN-001,sw101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-2,4,ชิ้น,2,False
+PT100 Temperature Sensor (เซนเซอร์อุณหภูมิ),SP-PT100-001,sw101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-1,3,ชิ้น,1,False
+Pusher Pneumatic Cylinder (กระบอกลมผลัก),SP-CYL-PSH-001,sw101,Pneumatic,ชั้นวางสต็อก D-2,2,ชิ้น,1,False
+FLEXTRON Power Base Board (บอร์ด FLEXTRON),SP-FLX-001,sw101,Electrical,ตู้ล็อก VIP,1,ชิ้น,1,True
+Film Spool Holder (ที่จับม้วนฟิล์ม),SP-SPL-001,sw101,Mechanical,ชั้นวางสต็อก D-2,3,ชิ้น,1,False
+Welding Bar Element (ลวดความร้อนเชื่อม),SP-WLD-001,sw101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-2,5,ชิ้น,2,False
+Mobil Pyrolube 830 (น้ำมันหล่อลื่นโซ่เตา),SP-OIL-830,sw101,Lubricant,ห้องเก็บสารเคมี,4,ลิตร,1,False
+Motor Inverter SW101 (อินเวอร์เตอร์มอเตอร์),SP-INV-001,sw101,Electrical,ตู้ล็อก VIP,0,ชิ้น,1,True
+Emergency Stop Button (ปุ่มหยุดฉุกเฉิน),GEN-ESTOP-001,all,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-1,6,ชิ้น,2,False
+Oven Front Panel Glass (กระจกหน้าเตาอบ),SP-GLS-001,sw101,Mechanical,ชั้นวางสต็อก D-2,2,แผ่น,1,False
+Film Roll End Sensor (เซนเซอร์ม้วนฟิล์มหมด),MH350221,sw101,Electrical,ตู้เก็บชิ้นส่วนไฟฟ้า E-1,2,ชิ้น,1,False

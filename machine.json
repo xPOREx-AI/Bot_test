@@ -1,0 +1,25 @@
+{
+  "machines": [
+    {
+      "name": "Shrink Wrap Machine",
+      "nameTH": "เครื่องหุ้มฟิล์มหด",
+      "code": "sw101",
+      "description": "SMIPACK BP600/BP800/BP1102 — เครื่องหุ้มฟิล์มหดกึ่งอัตโนมัติ สำหรับบรรจุขวด กระป๋อง กล่อง ความเร็ว 5-10 แพ็ค/นาที",
+      "brand": "SMIPACK"
+    },
+    {
+      "name": "Sticker Barcode Labeler",
+      "nameTH": "เครื่องติดสติกเกอร์บาร์โค้ด",
+      "code": "sb101",
+      "description": "Weber ALPHA COMPACT — เครื่องติดฉลากอัตโนมัติ รองรับ Wipe-On, Tamp-Blow, Tamp-On สูงสุด 600 ฉลาก/นาที",
+      "brand": "Weber"
+    },
+    {
+      "name": "Labeler Inline",
+      "nameTH": "เครื่องติดฉลากแบบ Inline",
+      "code": "lb101",
+      "description": "Krones ErgoBlocL — ระบบติดฉลากอินไลน์ความเร็วสูง เชื่อมต่อกับ Contiform Blow Molder สูงสุด 60,000 ขวด/ชั่วโมง",
+      "brand": "Krones"
+    }
+  ]
+}

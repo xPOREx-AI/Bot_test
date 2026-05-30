@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIVORABot — Overview Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <style>
+    /* ─── Design Tokens ─── */
+    :root {
+      /* Core Palette */
+      --bg:          #191919;
+      --surface:     #1f1e1c;
+      --surface-2:   #252320;
+      --surface-3:   #2c2a27;
+      --border:      rgba(212,113,30,0.10);
+      --border-md:   rgba(212,113,30,0.18);
+      --border-hi:   rgba(204,120,92,0.40);
+
+      /* Text */
+      --text:        #eeeae5;
+      --text-2:      #c4bfba;
+      --text-3:      #7a7672;
+      --text-4:      #4f4c49;
+
+      /* Accent */
+      --accent:      #cc785c;
+      --accent-2:    #d4711e;
+      --accent-dim:  rgba(204,120,92,0.12);
+      --accent-glow: rgba(204,120,92,0.20);
+
+      /* Semantic colours */
+      --green:       #4ade80;
+      --green-dim:   rgba(74,222,128,0.10);
+      --red:         #f87171;
+      --red-dim:     rgba(248,113,113,0.10);
+      --amber:       #fbbf24;
+      --amber-dim:   rgba(251,191,36,0.10);
+      --violet:      #a78bfa;
+      --violet-dim:  rgba(167,139,250,0.10);
+      --blue:        #60a5fa;
+      --blue-dim:    rgba(96,165,250,0.10);
+
+      /* Radius / Shadow */
+      --radius-sm:   8px;
+      --radius-md:   12px;
+      --radius-lg:   16px;
+      --shadow-sm:   0 2px 8px rgba(0,0,0,0.25);
+      --shadow-md:   0 6px 20px rgba(0,0,0,0.30);
+      --shadow-glow: 0 0 20px rgba(204,120,92,0.15);
+    }
+
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ─── Scrollbar ─── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* ─── Header ─── */
+    .header {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 14px 28px;
+      background: rgba(25,24,22,0.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .header-logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(204,120,92,0.30);
+    }
+    .header-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.12rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .header-title span { color: var(--accent); }
+    .header-subtitle {
+      font-size: 0.70rem;
+      color: var(--text-3);
+      font-weight: 400;
+      margin-top: 2px;
+      letter-spacing: 0.01em;
+    }
+    .header-spacer { flex: 1; }
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .status-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--text-3);
+    }
+    .status-chip .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 7px var(--green);
+      flex-shrink: 0;
+    }
+    .status-chip .dot.loading {
+      background: var(--amber);
+      box-shadow: 0 0 7px var(--amber);
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+    .countdown-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: var(--text-3);
+    }
+    .countdown-badge span { color: var(--amber); font-weight: 700; min-width: 20px; text-align: center; }
+    .refresh-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--accent-dim);
+      border: 1px solid var(--border-md);
+      border-radius: var(--radius-sm);
+      color: var(--accent);
+      font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+    .refresh-btn:hover {
+      background: var(--accent-glow);
+      border-color: var(--border-hi);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-1px);
+    }
+    .refresh-btn.spinning i { animation: spin 0.7s linear infinite; }
+    .home-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      background: var(--violet-dim);
+      border: 1px solid rgba(167,139,250,0.20);
+      border-radius: var(--radius-sm);
+      color: var(--violet);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.22s ease;
+      text-decoration: none;
+    }
+    .home-btn:hover {
+      background: rgba(167,139,250,0.18);
+      border-color: rgba(167,139,250,0.40);
+      transform: translateY(-1px);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── Error Banner ─── */
+    .error-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin: 12px 28px 0;
+      padding: 12px 16px;
+      background: var(--red-dim);
+      border: 1px solid rgba(248,113,113,0.25);
+      border-radius: var(--radius-md);
+      color: #fca5a5;
+      font-size: 0.82rem;
+      animation: fadeIn 0.3s ease;
+    }
+    .error-banner.show { display: flex; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);} }
+
+    /* ─── Main Content ─── */
+    .content {
+      padding: 24px 28px;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    /* ─── Section Title ─── */
+    .section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title i { font-size: 0.80rem; }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, var(--border-md), transparent);
+    }
+
+    /* ─── KPI Grid ─── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 500px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.28s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.28s ease;
+      background: radial-gradient(ellipse at top left, var(--accent-dim), transparent 70%);
+    }
+    .kpi-card:hover {
+      border-color: var(--border-hi);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-2px);
+    }
+    .kpi-card:hover::before { opacity: 1; }
+    .kpi-icon {
+      width: 50px; height: 50px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .kpi-icon.blue  { background: var(--blue-dim);   color: var(--blue); }
+    .kpi-icon.sky   { background: var(--accent-dim); color: var(--accent); }
+    .kpi-icon.green { background: var(--green-dim);  color: var(--green); }
+    .kpi-icon.amber { background: var(--amber-dim);  color: var(--amber); }
+    .kpi-icon.red   { background: var(--red-dim);    color: var(--red); }
+    .kpi-body { flex: 1; min-width: 0; position: relative; z-index: 1; }
+    .kpi-label { font-size: 0.75rem; color: var(--text-3); margin-bottom: 4px; font-weight: 500; }
+    .kpi-value {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 2.0rem;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    .kpi-sub { font-size: 0.70rem; color: var(--text-3); margin-top: 4px; }
+
+    /* ─── Charts Grid ─── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1.2fr 0.8fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 1100px) { .charts-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 700px)  { .charts-grid { grid-template-columns: 1fr; } }
+
+    .chart-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      transition: border-color 0.25s ease;
+    }
+    .chart-card:hover { border-color: var(--border-md); }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .chart-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.90rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.01em;
+    }
+    .chart-title i { color: var(--accent); font-size: 0.82rem; }
+    .chart-wrap { position: relative; height: 210px; }
+
+    /* ─── Details Grid ─── */
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 900px) { .details-grid { grid-template-columns: 1fr; } }
+
+    .detail-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      transition: border-color 0.25s ease;
+    }
+    .detail-card:hover { border-color: var(--border-md); }
+    .detail-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .detail-card-title {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .detail-card-title i { color: var(--accent); font-size: 0.85rem; }
+    .detail-card-count {
+      font-size: 0.72rem;
+      background: var(--accent-dim);
+      border: 1px solid var(--border-md);
+      border-radius: 20px;
+      padding: 2px 10px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .detail-scroll {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 320px;
+    }
+
+    /* ─── Repair Items ─── */
+    .repair-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.18s;
+    }
+    .repair-item:last-child { border-bottom: none; }
+    .repair-badge {
+      flex-shrink: 0;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+    .repair-body { flex: 1; min-width: 0; }
+    .repair-problem {
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .repair-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 0.70rem;
+      color: var(--text-3);
+    }
+    .repair-meta span { display: flex; align-items: center; gap: 4px; }
+    .repair-source-ai     { color: var(--violet); }
+    .repair-source-manual { color: var(--accent); }
+
+    /* ─── Part Items ─── */
+    .part-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .part-item:last-child { border-bottom: none; }
+    .part-status {
+      width: 34px; height: 34px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .part-status.status-zero      { background: var(--red-dim);   color: var(--red); }
+    .part-status.status-breakdown { background: var(--amber-dim);  color: var(--amber); }
+    .part-status.status-low       { background: rgba(250,204,21,0.10); color: #facc15; }
+    .part-body { flex: 1; min-width: 0; }
+    .part-name {
+      font-size: 0.83rem;
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .part-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 0.70rem; }
+    .mc-badge {
+      padding: 1px 8px;
+      border-radius: 5px;
+      font-size: 0.67rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .status-zero-text      { color: var(--red); }
+    .status-breakdown-text { color: var(--amber); }
+    .status-low-text       { color: #facc15; }
+    .part-pno { color: var(--text-3); }
+    .all-ok {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      color: var(--green);
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: var(--green-dim);
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(74,222,128,0.15);
+    }
+
+    /* ─── Manpower Table ─── */
+    .manpower-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    thead tr {
+      border-bottom: 1px solid var(--border-md);
+    }
+    th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+    td {
+      padding: 11px 14px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    tbody tr { transition: background 0.18s ease; }
+    tbody tr:hover td { background: rgba(204,120,92,0.04); }
+    tbody tr:last-child td { border-bottom: none; }
+    td.center { text-align: center; }
+    td.muted { color: var(--text-3); font-size: 0.78rem; }
+
+    /* Tech dot */
+    .tech-dot {
+      display: inline-block;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+      flex-shrink: 0;
+      box-shadow: 0 0 6px currentColor;
+    }
+    .tech-name { display: flex; align-items: center; font-weight: 500; }
+
+    /* Progress bar */
+    .progress-wrap {
+      height: 5px;
+      background: var(--surface-3);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+    .progress-bar {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.7s cubic-bezier(0.22,0.61,0.36,1);
+    }
+    .pct-label { font-size: 0.70rem; color: var(--text-3); }
+
+    /* Machine badges row */
+    .mc-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+
+    /* Empty state */
+    .empty {
+      padding: 28px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 0.83rem;
+    }
+
+    /* ─── Parts Filter Tabs ─── */
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-tab {
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-3);
+      font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+      font-size: 0.73rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .filter-tab:hover { border-color: var(--border-md); color: var(--text-2); }
+    .filter-tab.active {
+      background: var(--accent-dim);
+      border-color: var(--border-hi);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ─── Spare Parts Full Table ─── */
+    .parts-table-section {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .parts-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .parts-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 13px;
+      width: 230px;
+      transition: border-color 0.18s;
+    }
+    .parts-search:focus-within {
+      border-color: var(--border-hi);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .parts-search input {
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+      font-size: 0.80rem;
+      width: 100%;
+    }
+    .parts-search input::placeholder { color: var(--text-4); }
+    .parts-search i { color: var(--text-3); font-size: 0.72rem; }
+    .qty-ok        { color: var(--green); font-weight: 600; }
+    .qty-low       { color: #facc15; font-weight: 600; }
+    .qty-zero      { color: var(--red); font-weight: 600; }
+    .qty-breakdown { color: var(--amber); font-weight: 600; }
+    .status-pill {
+      padding: 2px 9px;
+      border-radius: 5px;
+      font-size: 0.70rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .status-pill.ok        { background: var(--green-dim);  color: var(--green); }
+    .status-pill.low       { background: rgba(250,204,21,0.10); color: #facc15; }
+    .status-pill.zero      { background: var(--red-dim);    color: var(--red); }
+    .status-pill.breakdown { background: var(--amber-dim);  color: var(--amber); }
+
+    /* ─── Machine History Section ─── */
+    .machine-history-section {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .machine-selector-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .machine-tab {
+      padding: 8px 18px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--surface-3);
+      color: var(--text-3);
+      font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+      font-size: 0.80rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.20s ease;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .machine-tab:hover { border-color: var(--border-md); color: var(--text-2); }
+    .machine-tab.active {
+      color: var(--text);
+      border-color: transparent;
+    }
+    .machine-tab .tab-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 5px currentColor;
+    }
+    .mh-stats-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .mh-stat {
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 140px;
+      transition: border-color 0.20s;
+    }
+    .mh-stat:hover { border-color: var(--border-md); }
+    .mh-stat-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.88rem;
+      flex-shrink: 0;
+    }
+    .mh-stat-val {
+      font-family: 'Lora', Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .mh-stat-label { font-size: 0.70rem; color: var(--text-3); margin-top: 3px; }
+    .mh-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .mh-tab {
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-3);
+      font-family: 'Plus Jakarta Sans', 'Sarabun', sans-serif;
+      font-size: 0.73rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+    .mh-tab:hover { border-color: var(--border-md); color: var(--text-2); }
+    .mh-tab.active {
+      background: var(--accent-dim);
+      border-color: var(--border-hi);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .mh-source-ai     { color: var(--violet); }
+    .mh-source-manual { color: var(--accent); }
+    .mh-loading {
+      padding: 32px;
+      text-align: center;
+      color: var(--text-3);
+      font-size: 0.83rem;
+    }
+    .tech-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .tech-chip {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: var(--violet-dim);
+      color: var(--violet);
+      border: 1px solid rgba(167,139,250,0.20);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tech-chip .tech-cnt {
+      background: rgba(167,139,250,0.18);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 0.68rem;
+    }
+
+    /* ─── Tooltip ─── */
+    [title] { cursor: default; }
+
+    /* ─── Grain texture overlay ─── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.018;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ─── Blobs background ─── */
+    .bg-blobs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .bg-blobs::before, .bg-blobs::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.055;
+    }
+    .bg-blobs::before {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, var(--accent-2), transparent);
+      top: -250px; left: -250px;
+    }
+    .bg-blobs::after {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, #8b4513, transparent);
+      bottom: -200px; right: -150px;
+    }
+    .content { position: relative; z-index: 1; }
+    .header { position: relative; z-index: 2; }
+
+    /* ─── Responsive Adjustments (Mobile & Tablet) ─── */
+    @media (max-width: 768px) {
+      .header { padding: 12px 16px; gap: 10px; }
+      .header-spacer { display: none; }
+      .header-status { width: 100%; justify-content: space-between; }
+      .content { padding: 16px 14px; }
+      .kpi-card, .chart-card, .detail-card, .manpower-card, .parts-table-section,
+      .machine-history-section { padding: 14px 16px; }
+      .parts-search { width: 100%; margin-top: 8px; }
+      .filter-tabs { width: 100%; }
+      .error-banner { margin: 10px 14px 0; }
+    }
+    @media (max-width: 480px) {
+      .header-status { gap: 8px; }
+      .status-chip, .countdown-badge, .refresh-btn { padding: 5px 9px; font-size: 0.70rem; }
+      .kpi-value { font-size: 1.55rem; }
+      .chart-wrap { height: 180px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-blobs"></div>
+
+  <header class="header">
+    <div class="header-logo">
+      <div class="header-logo-icon"><i class="fa-solid fa-robot"></i></div>
+      <div>
+        <div class="header-title">AIVORA<span>Bot</span> <span style="font-weight:400;color:var(--text-3);font-size:0.82rem">Dashboard</span></div>
+        <div class="header-subtitle">ภาพรวมงานซ่อม · Spare Parts · Manpower</div>
+      </div>
+    </div>
+    <div class="header-spacer"></div>
+    <div class="header-status">
+      <div class="status-chip">
+        <div class="dot" id="status-dot"></div>
+        <span id="last-updated">กำลังโหลด...</span>
+      </div>
+      <div class="countdown-badge">
+        <i class="fa-solid fa-rotate" style="font-size:0.7rem;color:#e8843a"></i>
+        อีก <span id="countdown">30</span> วิ
+      </div>
+      <button class="home-btn" id="home-btn" onclick="goHome()">
+        <i class="fa-solid fa-house"></i>
+        Home
+      </button>
+      <button class="refresh-btn" id="refresh-btn">
+        <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i>
+        รีเฟรช
+      </button>
+    </div>
+  </header>
+
+  <div class="error-banner" id="error-banner">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span class="error-msg"></span>
+  </div>
+
+  <main class="content">
+
+    <div class="section-title"><i class="fa-solid fa-gauge" style="color:#d4711e"></i> ภาพรวมตัวเลข</div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon blue"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">งานแจ้งซ่อมทั้งหมด</div>
+          <div class="kpi-value" id="kpi-total">—</div>
+          <div class="kpi-sub">ทุกเครื่อง รวมทุก Source</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon sky"><i class="fa-solid fa-calendar-check"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">ซ่อมเดือนนี้</div>
+          <div class="kpi-value" id="kpi-month">—</div>
+          <div class="kpi-sub" id="kpi-month-label">— รายการ</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon green"><i class="fa-solid fa-boxes-stacking"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">Spare Parts ทั้งหมด</div>
+          <div class="kpi-value" id="kpi-parts">—</div>
+          <div class="kpi-sub" id="kpi-parts-ok">— รายการปกติ</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <div class="kpi-body">
+          <div class="kpi-label">ต้องการดูแล (Parts)</div>
+          <div class="kpi-value" id="kpi-alert">—</div>
+          <div class="kpi-sub" id="kpi-alert-sub">หมด + Breakdown</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-chart-bar" style="color:#d4711e"></i> กราฟวิเคราะห์</div>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title"><i class="fa-solid fa-industry"></i> งานซ่อมแต่ละเครื่อง</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart-machines"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title"><i class="fa-solid fa-users"></i> Manpower ช่างแต่ละคน</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart-manpower"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title"><i class="fa-solid fa-warehouse"></i> สถานะ Spare Parts</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chart-parts"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-list-check" style="color:#d4711e"></i> รายละเอียด</div>
+    <div class="details-grid">
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <div class="detail-card-title">
+            <i class="fa-solid fa-clock-rotate-left"></i> ประวัติการซ่อมล่าสุด
+          </div>
+          <span class="detail-card-count" id="repairs-count">0 รายการ</span>
+        </div>
+        <div class="detail-scroll" id="recent-repairs">
+          <div class="empty"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลด...</div>
+        </div>
+      </div>
+
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <div class="detail-card-title">
+            <i class="fa-solid fa-triangle-exclamation"></i> Parts ที่ต้องดูแล
+          </div>
+          <span class="detail-card-count" id="critical-count">0 รายการ</span>
+        </div>
+        <div class="detail-scroll" id="critical-parts">
+          <div class="empty"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลด...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-user-gear" style="color:#d4711e"></i> ตารางประสิทธิภาพช่าง (Manpower)</div>
+    <div class="manpower-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ชื่อช่าง</th>
+              <th class="center">จำนวนงาน</th>
+              <th style="min-width:160px">สัดส่วน</th>
+              <th>เครื่องที่รับผิดชอบ</th>
+              <th>งานล่าสุด</th>
+            </tr>
+          </thead>
+          <tbody id="manpower-table-body">
+            <tr><td colspan="5" class="center" style="padding:20px;color:#64748b">กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-industry" style="color:#d4711e"></i> ประวัติการซ่อมรายเครื่อง</div>
+    <div class="machine-history-section">
+      <div class="machine-selector-tabs" id="machine-history-tabs">
+        <!-- populated by JS -->
+      </div>
+      <div id="machine-history-body">
+        <div class="mh-loading"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลด...</div>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-boxes-stacking" style="color:#d4711e"></i> รายการ Spare Parts ทั้งหมด</div>
+    <div class="parts-table-section">
+      <div class="parts-header">
+        <div class="filter-tabs" id="parts-filter-tabs">
+          <button class="filter-tab active" data-filter="all">ทั้งหมด <span id="tab-all-count"></span></button>
+          <button class="filter-tab" data-filter="critical">หมด stock หรือ Breakdown <span id="tab-critical-count"></span></button>
+          <button class="filter-tab" data-filter="low">ต่ำกว่า Min stock <span id="tab-low-count"></span></button>
+          <button class="filter-tab" data-filter="ok">stock ปกติ <span id="tab-ok-count"></span></button>
+        </div>
+        <div class="parts-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="parts-search-inp" placeholder="ค้นหา part...">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="parts-table">
+          <thead>
+            <tr>
+              <th>ชื่อ Spare Part</th>
+              <th>Part Number</th>
+              <th>เครื่อง</th>
+              <th>หมวด</th>
+              <th>ตำแหน่ง</th>
+              <th class="center">จำนวน</th>
+              <th class="center">Min</th>
+              <th>สถานะ</th>
+            </tr>
+          </thead>
+          <tbody id="parts-table-body">
+            <tr><td colspan="8" class="center" style="padding:20px;color:#64748b">กำลังโหลด...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    const API = 'http://localhost:8000';
+    const REFRESH_INTERVAL = 30;
+
+    const MACHINE_COLORS = {
+      lb101: '#6366f1',
+      sb101: '#22c55e',
+      sw101: '#e8843a',
+    };
+    const TECH_PALETTE = [
+      '#cc785c','#a78bfa','#22c55e','#60a5fa',
+      '#fbbf24','#f43f5e','#34d399','#fb923c'
+    ];
+
+    let charts = {};
+    let countdownTimer = null;
+    let countdown = REFRESH_INTERVAL;
+    let allPartsData = [];
+    let currentFilter = 'all';
+    let searchQuery = '';
+    let machinesList = [];
+    let currentMachineTab = null;
+    let currentMachineRecordFilter = 'all'; // all | manual | ai
+    let machineRecordsCache = {}; // { code: [records] }
+
+    function getMachineColor(code) {
+      return MACHINE_COLORS[code] || '#64748b';
+    }
+
+    /* ── Fetch ── */
+    async function fetchStats() {
+      const res = await fetch(`${API}/dashboard/stats`);
+      if (!res.ok) throw new Error(`Server ตอบ HTTP ${res.status}`);
+      return res.json();
+    }
+
+    /* ── KPIs ── */
+    function renderKPIs(data) {
+      document.getElementById('kpi-total').textContent   = data.repairs_total;
+      document.getElementById('kpi-month').textContent   = data.repairs_this_month;
+      document.getElementById('kpi-parts').textContent   = data.spare_parts.total;
+      const alertCount = data.spare_parts.zero + data.spare_parts.breakdown;
+      document.getElementById('kpi-alert').textContent   = alertCount;
+      document.getElementById('kpi-parts-ok').textContent = `${data.spare_parts.ok} รายการปกติ`;
+      document.getElementById('kpi-alert-sub').textContent = 
+        `หมด ${data.spare_parts.zero} + Breakdown ${data.spare_parts.breakdown}`;
+
+      const now = new Date(data.last_updated);
+      const timeStr = now.toLocaleString('th-TH', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      document.getElementById('last-updated').textContent = 'อัปเดต ' + timeStr;
+      document.getElementById('status-dot').classList.remove('loading');
+    }
+
+    /* ── Machine Chart ── */
+    function renderMachineChart(data) {
+      const machines = data.machines;
+      const labels   = machines.map(m => m.code.toUpperCase());
+      const values   = machines.map(m => data.repairs_by_machine[m.code]?.count || 0);
+      const nameTH   = machines.map(m => m.nameTH || m.name);
+      const colors   = machines.map(m => getMachineColor(m.code));
+
+      const ctx = document.getElementById('chart-machines').getContext('2d');
+      if (charts.machines) charts.machines.destroy();
+      charts.machines = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'จำนวนงานซ่อม',
+            data: values,
+            backgroundColor: colors.map(c => c + 'cc'),
+            borderColor: colors,
+            borderWidth: 2,
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => nameTH[items[0].dataIndex],
+                label: ctx => ` ${ctx.raw} ครั้ง`,
+              }
+            }
+          },
+          scales: {
+            x: { 
+              grid: { color: 'rgba(204,120,92,0.05)' },
+              ticks: { color: '#7a7672', font: { family: 'Plus Jakarta Sans', size: 11 } }
+            },
+            y: { 
+              grid: { color: 'rgba(204,120,92,0.05)' },
+              ticks: { color: '#7a7672', stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 11 } },
+              beginAtZero: true 
+            }
+          }
+        }
+      });
+    }
+
+    /* ── Manpower Chart ── */
+    function renderManpowerChart(data) {
+      const techs  = Object.entries(data.technicians).sort((a, b) => b[1].count - a[1].count);
+      const labels = techs.map(t => t[0]);
+      const values = techs.map(t => t[1].count);
+      const colors = labels.map((_, i) => TECH_PALETTE[i % TECH_PALETTE.length]);
+
+      const ctx = document.getElementById('chart-manpower').getContext('2d');
+      if (charts.manpower) charts.manpower.destroy();
+      charts.manpower = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'งานซ่อม',
+            data: values,
+            backgroundColor: colors.map(c => c + 'cc'),
+            borderColor: colors,
+            borderWidth: 2,
+            borderRadius: 6,
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.raw} งาน` } }
+          },
+          scales: {
+            x: { 
+              grid: { color: 'rgba(204,120,92,0.05)' },
+              ticks: { color: '#7a7672', stepSize: 1, font: { family: 'Plus Jakarta Sans', size: 11 } },
+              beginAtZero: true 
+            },
+            y: { 
+              grid: { color: 'rgba(204,120,92,0.05)' },
+              ticks: { color: '#c4bfba', font: { family: 'Plus Jakarta Sans', size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    /* ── Parts Doughnut ── */
+    function renderPartsChart(data) {
+      const sp = data.spare_parts;
+      const ctx = document.getElementById('chart-parts').getContext('2d');
+      if (charts.parts) charts.parts.destroy();
+      charts.parts = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['ปกติ', 'ต่ำกว่า Min', 'หมดสต็อก', 'Stock Breakdown'],
+          datasets: [{
+            data: [sp.ok, sp.low, sp.zero, sp.breakdown],
+            backgroundColor: ['#22c55ecc','#facc15cc','#ef4444cc','#fbbf24cc'],
+            borderColor:     ['#22c55e','#facc15','#ef4444','#fbbf24'],
+            borderWidth: 2,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '62%',
+          plugins: {
+            legend: { 
+              position: 'bottom',
+              labels: { 
+                color: '#7a7672', 
+                font: { family: 'Plus Jakarta Sans', size: 10 },
+                padding: 10,
+                boxWidth: 10,
+                usePointStyle: true,
+              }
+            },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} รายการ` } }
+          }
+        }
+      });
+    }
+
+    /* ── Recent Repairs ── */
+    function renderRecentRepairs(data) {
+      const container = document.getElementById('recent-repairs');
+      const repairs   = data.repairs_recent || [];
+      document.getElementById('repairs-count').textContent = `${repairs.length} รายการ`;
+
+      if (!repairs.length) {
+        container.innerHTML = '<div class="empty">ไม่มีข้อมูล</div>';
+        return;
+      }
+
+      container.innerHTML = repairs.slice(0, 20).map(r => {
+        const mc    = r.machine_code;
+        const color = getMachineColor(mc);
+        const srcIcon  = r.source === 'ai' ? 'fa-robot' : 'fa-user-gear';
+        const srcClass = r.source === 'ai' ? 'repair-source-ai' : 'repair-source-manual';
+        return `
+          <div class="repair-item">
+            <div class="repair-badge" style="background:${color}20;border-color:${color}50;color:${color}">
+              ${mc.toUpperCase()}
+            </div>
+            <div class="repair-body">
+              <div class="repair-problem" title="${r.problem}">${r.problem}</div>
+              <div class="repair-meta">
+                <span><i class="fa-solid fa-calendar-days"></i> ${r.date}</span>
+                <span class="${srcClass}"><i class="fa-solid ${srcIcon}"></i> ${r.reporter}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ── Critical Parts ── */
+    function renderCriticalParts(data) {
+      const parts    = data.spare_parts.parts;
+      const critical = parts.filter(p => 
+        p.quantity === 0 || p.stock_breakdown || p.quantity <= p.min_quantity
+      ).sort((a, b) => {
+        const score = p => p.quantity === 0 ? 0 : p.stock_breakdown ? 1 : 2;
+        return score(a) - score(b);
+      });
+
+      document.getElementById('critical-count').textContent = `${critical.length} รายการ`;
+      const container = document.getElementById('critical-parts');
+
+      if (!critical.length) {
+        container.innerHTML = '<div class="all-ok"><i class="fa-solid fa-circle-check"></i> Spare Parts ทุกรายการพร้อมใช้งาน!</div>';
+        return;
+      }
+
+      container.innerHTML = critical.map(p => {
+        let statusClass, statusText, statusIcon;
+        if (p.quantity === 0) {
+          statusClass = 'status-zero'; 
+          statusText  = 'หมดสต็อก';
+          statusIcon  = 'fa-box-open';
+        } else if (p.stock_breakdown) {
+          statusClass = 'status-breakdown'; 
+          statusText  = 'Stock Breakdown';
+          statusIcon  = 'fa-triangle-exclamation';
+        } else {
+          statusClass = 'status-low'; 
+          statusText  = `เหลือ ${p.quantity} ${p.unit} (min ${p.min_quantity})`;
+          statusIcon  = 'fa-arrow-trend-down';
+        }
+        const mc    = p.machine_code;
+        const color = mc === 'all' ? '#64748b' : getMachineColor(mc);
+        return `
+          <div class="part-item">
+            <div class="part-status ${statusClass}">
+              <i class="fa-solid ${statusIcon}"></i>
+            </div>
+            <div class="part-body">
+              <div class="part-name" title="${p.part_name}">${p.part_name}</div>
+              <div class="part-meta">
+                <span class="mc-badge" style="background:${color}25;color:${color}">${mc.toUpperCase()}</span>
+                <span class="${statusClass}-text">${statusText}</span>
+                ${p.part_number && p.part_number !== '-' ? `<span class="part-pno">P/N: ${p.part_number}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ── Manpower Table ── */
+    function renderManpowerTable(data) {
+      const techs = Object.entries(data.technicians).sort((a, b) => b[1].count - a[1].count);
+      const total = techs.reduce((s, t) => s + t[1].count, 0);
+      const tbody = document.getElementById('manpower-table-body');
+
+      if (!techs.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="center" style="padding:20px;color:#64748b">ไม่มีข้อมูลช่าง</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = techs.map(([name, info], i) => {
+        const pct   = total ? Math.round(info.count / total * 100) : 0;
+        const color = TECH_PALETTE[i % TECH_PALETTE.length];
+        const machineBadges = info.machines.map(mc => {
+          const c = getMachineColor(mc);
+          return `<span class="mc-badge" style="background:${c}25;color:${c}">${mc.toUpperCase()}</span>`;
+        }).join('');
+        return `
+          <tr>
+            <td>
+              <div class="tech-name">
+                <span class="tech-dot" style="background:${color}"></span>
+                <strong>${name}</strong>
+              </div>
+            </td>
+            <td class="center"><strong style="font-size:1.05rem">${info.count}</strong></td>
+            <td>
+              <div class="progress-wrap">
+                <div class="progress-bar" style="width:${pct}%;background:${color}"></div>
+              </div>
+              <span class="pct-label">${pct}%</span>
+            </td>
+            <td><div class="mc-badges">${machineBadges}</div></td>
+            <td class="muted">${info.recent || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /* ── Parts Table ── */
+    function renderPartsTable() {
+      const parts  = allPartsData;
+      const q      = searchQuery.toLowerCase();
+      const tbody  = document.getElementById('parts-table-body');
+
+      const filtered = parts.filter(p => {
+        const matchSearch = !q || 
+          p.part_name.toLowerCase().includes(q) || 
+          p.part_number.toLowerCase().includes(q) ||
+          p.machine_code.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          p.location.toLowerCase().includes(q);
+        
+        const matchFilter =
+          currentFilter === 'all' ||
+          (currentFilter === 'critical' && (p.quantity === 0 || p.stock_breakdown)) ||
+          (currentFilter === 'low' && !p.stock_breakdown && p.quantity > 0 && p.quantity <= p.min_quantity) ||
+          (currentFilter === 'ok' && !p.stock_breakdown && p.quantity > p.min_quantity);
+
+        return matchSearch && matchFilter;
+      });
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="center" style="padding:20px;color:#64748b">ไม่พบรายการ</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(p => {
+        let statusClass, statusText;
+        if (p.quantity === 0) {
+          statusClass = 'zero'; statusText = 'หมดสต็อก';
+        } else if (p.stock_breakdown) {
+          statusClass = 'breakdown'; statusText = 'Stock Breakdown';
+        } else if (p.quantity <= p.min_quantity) {
+          statusClass = 'low'; statusText = 'ต่ำกว่า Min';
+        } else {
+          statusClass = 'ok'; statusText = 'ปกติ';
+        }
+        const mc    = p.machine_code;
+        const color = mc === 'all' ? '#64748b' : getMachineColor(mc);
+        const qtyClass = 
+          p.quantity === 0 ? 'qty-zero' :
+          p.stock_breakdown ? 'qty-breakdown' :
+          p.quantity <= p.min_quantity ? 'qty-low' : 'qty-ok';
+
+        return `
+          <tr>
+            <td>${p.part_name}</td>
+            <td style="font-family:monospace;font-size:0.8rem;color:#94a3b8">${p.part_number !== '-' ? p.part_number : '-'}</td>
+            <td>
+              <span class="mc-badge" style="background:${color}25;color:${color}">${mc.toUpperCase()}</span>
+            </td>
+            <td style="color:#94a3b8;font-size:0.8rem">${p.category}</td>
+            <td style="color:#94a3b8;font-size:0.8rem">${p.location}</td>
+            <td class="center ${qtyClass}"><strong>${p.quantity}</strong> ${p.unit}</td>
+            <td class="center" style="color:#64748b">${p.min_quantity}</td>
+            <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /* ── Machine History ── */
+    function parseMachineRecords(markdown) {
+      const records = [];
+      const sections = [
+        { header: '## บันทึกการแจ้งซ่อม', source: 'manual' },
+        { header: '## บันทึกจาก AI Chat',  source: 'ai'     },
+      ];
+      for (const { header, source } of sections) {
+        const start = markdown.indexOf(header);
+        if (start === -1) continue;
+        const rest  = markdown.slice(start + header.length);
+        const endIdx = rest.search(/^##\s/m);
+        const section = endIdx === -1 ? rest : rest.slice(0, endIdx);
+        for (const line of section.split('\n')) {
+          if (!line.startsWith('|')) continue;
+          if (/^\|[\s\-:|]+\|$/.test(line.replace(/ /g, ''))) continue;
+          const cols = line.split('|').map(c => c.trim()).filter(c => c);
+          if (!cols.length) continue;
+          if (['วันที่','อันดับ','---'].includes(cols[0])) continue;
+          if (source === 'ai' && cols.length >= 7) {
+            // New format: date | time | problem | solution | duration | result | reporter
+            records.push({
+              date:     cols[0],
+              time:     cols[1],
+              problem:  cols[2],
+              solution: cols[3],
+              duration: cols[4],
+              result:   cols[5],
+              reporter: cols[6] || '-',
+              source,
+            });
+          } else {
+            records.push({
+              date:     cols[0] || '-',
+              time:     '-',
+              problem:  cols[1] || '-',
+              solution: cols.length > 2 ? cols[cols.length - 2] : '-',
+              duration: '-',
+              result:   '-',
+              reporter: cols[cols.length - 1] || '-',
+              source,
+            });
+          }
+        }
+      }
+      return records.sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    async function selectMachineHistory(code) {
+      currentMachineTab = code;
+      currentMachineRecordFilter = 'all';
+
+      // Update active tab
+      document.querySelectorAll('.machine-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.code === code);
+        if (t.dataset.code === code) {
+          t.style.background = getMachineColor(code) + '22';
+          t.style.borderColor = getMachineColor(code) + '55';
+          t.style.color = getMachineColor(code);
+        } else {
+          t.style.background = '';
+          t.style.borderColor = '';
+          t.style.color = '';
+        }
+      });
+
+      const body = document.getElementById('machine-history-body');
+      body.innerHTML = '<div class="mh-loading"><i class="fa-solid fa-spinner fa-spin"></i> กำลังโหลด...</div>';
+
+      // Fetch if not cached
+      if (!machineRecordsCache[code]) {
+        try {
+          const res = await fetch(`${API}/machines/${code}/records`);
+          if (!res.ok) throw new Error('ไม่พบข้อมูล');
+          const json = await res.json();
+          machineRecordsCache[code] = parseMachineRecords(json.content || '');
+        } catch(e) {
+          body.innerHTML = `<div class="mh-loading" style="color:#f87171"><i class="fa-solid fa-circle-exclamation"></i> โหลดข้อมูลไม่สำเร็จ: ${e.message}</div>`;
+          return;
+        }
+      }
+
+      renderMachineHistory(code);
+    }
+
+    function renderMachineHistory(code) {
+      const records = machineRecordsCache[code] || [];
+      const color   = getMachineColor(code);
+      const body    = document.getElementById('machine-history-body');
+
+      const filtered = currentMachineRecordFilter === 'all'
+        ? records
+        : records.filter(r => r.source === currentMachineRecordFilter);
+
+      const totalCount  = records.length;
+      const manualCount = records.filter(r => r.source === 'manual').length;
+      const aiCount     = records.filter(r => r.source === 'ai').length;
+
+      // Technician breakdown
+      const techMap = {};
+      records.forEach(r => {
+        const t = r.reporter.trim();
+        if (!t || ['-','ไม่ระบุ','ผู้แจ้ง','ผู้บันทึก'].includes(t)) return;
+        techMap[t] = (techMap[t] || 0) + 1;
+      });
+      const techs = Object.entries(techMap).sort((a,b) => b[1]-a[1]);
+
+      const techChips = techs.length
+        ? techs.map(([name, cnt]) =>
+            `<span class="tech-chip"><i class="fa-solid fa-user-gear"></i>${name}<span class="tech-cnt">${cnt}</span></span>`
+          ).join('')
+        : '<span style="color:#64748b;font-size:0.8rem">ไม่มีข้อมูลช่าง</span>';
+
+      // AI chat stats: pass/fail, avg duration
+      const aiRecords  = records.filter(r => r.source === 'ai' && r.result !== '-');
+      const aiPass     = aiRecords.filter(r => r.result.includes('ผ่าน') && !r.result.includes('ไม่')).length;
+      const aiFail     = aiRecords.filter(r => r.result.includes('ไม่ผ่าน')).length;
+      const durMins    = aiRecords.map(r => {
+        const m = r.duration.match(/(\d+)\s*ชั่วโมง/);
+        const n = r.duration.match(/(\d+)\s*นาที/);
+        return (m ? parseInt(m[1]) * 60 : 0) + (n ? parseInt(n[1]) : 0);
+      }).filter(v => v > 0);
+      const avgDur     = durMins.length ? Math.round(durMins.reduce((a,b) => a+b, 0) / durMins.length) : null;
+      const passRate   = aiRecords.length ? Math.round(aiPass / aiRecords.length * 100) : null;
+
+      const rows = filtered.length ? filtered.map(r => {
+        const srcIcon  = r.source === 'ai' ? 'fa-robot' : 'fa-user-gear';
+        const srcClass = r.source === 'ai' ? 'mh-source-ai' : 'mh-source-manual';
+        const srcLabel = r.source === 'ai' ? 'AI Chat' : 'แจ้งซ่อม';
+        const timeStr  = (r.source === 'ai' && r.time && r.time !== '-') ? ` <span style="color:#64748b;font-size:0.75rem">${r.time}</span>` : '';
+        let resultHtml = '';
+        if (r.result && r.result !== '-') {
+          const isPass = r.result.includes('ผ่าน') && !r.result.includes('ไม่');
+          resultHtml = `<div style="font-size:0.72rem;margin-top:3px;color:${isPass?'#4ade80':'#f87171'}">${r.result}</div>`;
+        }
+        let durationHtml = '';
+        if (r.duration && r.duration !== '-') {
+          durationHtml = `<div style="font-size:0.72rem;color:#e8843a;margin-top:2px"><i class="fa-solid fa-clock"></i> ${r.duration}</div>`;
+        }
+        return `
+          <tr>
+            <td style="color:#94a3b8;font-size:0.82rem;white-space:nowrap">${r.date}${timeStr}</td>
+            <td>${r.problem}</td>
+            <td style="color:#94a3b8;font-size:0.8rem">${r.solution}</td>
+            <td style="white-space:nowrap">
+              <span class="tech-chip" style="background:rgba(56,189,248,0.08);color:#94a3b8;border-color:rgba(212,113,30,0.15)">
+                <i class="fa-solid fa-user"></i>${r.reporter}
+              </span>
+              ${durationHtml}
+            </td>
+            <td class="center">
+              <span class="${srcClass}" style="font-size:0.75rem;font-weight:600">
+                <i class="fa-solid ${srcIcon}"></i> ${srcLabel}
+              </span>
+              ${resultHtml}
+            </td>
+          </tr>`;
+      }).join('') : `<tr><td colspan="5" class="center" style="padding:20px;color:#64748b">ไม่มีข้อมูลในหมวดนี้</td></tr>`;
+
+      const aiStatCards = aiRecords.length ? `
+          <div class="mh-stat">
+            <div class="mh-stat-icon" style="background:rgba(74,222,128,0.12);color:#4ade80"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <div class="mh-stat-val" style="color:#4ade80">${passRate}%</div>
+              <div class="mh-stat-label">อัตราซ่อมผ่าน (${aiPass}/${aiRecords.length})</div>
+            </div>
+          </div>
+          <div class="mh-stat">
+            <div class="mh-stat-icon" style="background:rgba(245,158,11,0.12);color:#e8843a"><i class="fa-solid fa-stopwatch"></i></div>
+            <div>
+              <div class="mh-stat-val" style="color:#e8843a">${avgDur !== null ? avgDur + ' นาที' : '-'}</div>
+              <div class="mh-stat-label">เวลาเฉลี่ยต่อครั้ง (AI)</div>
+            </div>
+          </div>` : '';
+
+      body.innerHTML = `
+        <div class="mh-stats-row">
+          <div class="mh-stat">
+            <div class="mh-stat-icon" style="background:${color}20;color:${color}"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+            <div>
+              <div class="mh-stat-val" style="color:${color}">${totalCount}</div>
+              <div class="mh-stat-label">รายการซ่อมทั้งหมด</div>
+            </div>
+          </div>
+          <div class="mh-stat">
+            <div class="mh-stat-icon" style="background:rgba(212,113,30,0.12);color:#e8843a"><i class="fa-solid fa-user-gear"></i></div>
+            <div>
+              <div class="mh-stat-val" style="color:#e8843a">${manualCount}</div>
+              <div class="mh-stat-label">แจ้งซ่อม (Manual)</div>
+            </div>
+          </div>
+          <div class="mh-stat">
+            <div class="mh-stat-icon" style="background:rgba(167,139,250,0.12);color:#a78bfa"><i class="fa-solid fa-robot"></i></div>
+            <div>
+              <div class="mh-stat-val" style="color:#a78bfa">${aiCount}</div>
+              <div class="mh-stat-label">บันทึกจาก AI Chat</div>
+            </div>
+          </div>
+          ${aiStatCards}
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:0.75rem;color:#64748b;margin-bottom:6px"><i class="fa-solid fa-users"></i> ช่างที่มาซ่อม</div>
+          <div class="tech-list">${techChips}</div>
+        </div>
+        <div class="mh-tabs" id="mh-source-tabs">
+          <button class="mh-tab ${currentMachineRecordFilter==='all'?'active':''}" data-src="all">ทั้งหมด (${totalCount})</button>
+          <button class="mh-tab ${currentMachineRecordFilter==='manual'?'active':''}" data-src="manual"><i class="fa-solid fa-user-gear mh-source-manual"></i> แจ้งซ่อม (${manualCount})</button>
+          <button class="mh-tab ${currentMachineRecordFilter==='ai'?'active':''}" data-src="ai"><i class="fa-solid fa-robot mh-source-ai"></i> AI Chat (${aiCount})</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="white-space:nowrap">วันที่ / เวลา</th>
+                <th>ปัญหา / Alarm</th>
+                <th>วิธีแก้ไข</th>
+                <th>ช่าง / ระยะเวลา</th>
+                <th class="center">ประเภท / ผล</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+
+      // Bind source filter tabs
+      document.getElementById('mh-source-tabs').addEventListener('click', e => {
+        const tab = e.target.closest('.mh-tab');
+        if (!tab) return;
+        currentMachineRecordFilter = tab.dataset.src;
+        renderMachineHistory(currentMachineTab);
+      });
+    }
+
+    function initMachineHistoryTabs(machines) {
+      machinesList = machines;
+      const container = document.getElementById('machine-history-tabs');
+      container.innerHTML = machines.map(m => {
+        const color = getMachineColor(m.code);
+        return `<button class="machine-tab" data-code="${m.code}">
+          <span class="tab-dot" style="background:${color}"></span>
+          ${m.code.toUpperCase()}
+          <span style="font-weight:400;color:#64748b;font-size:0.75rem">${m.nameTH || m.name}</span>
+        </button>`;
+      }).join('');
+
+      container.addEventListener('click', e => {
+        const tab = e.target.closest('.machine-tab');
+        if (tab) selectMachineHistory(tab.dataset.code);
+      });
+
+      // Auto-select first machine
+      if (machines.length) selectMachineHistory(machines[0].code);
+    }
+
+    /* ── Main Load ── */
+    async function loadDashboard() {
+      const dot         = document.getElementById('status-dot');
+      const refreshBtn  = document.getElementById('refresh-btn');
+      const refreshIcon = document.getElementById('refresh-icon');
+      const errorBanner = document.getElementById('error-banner');
+
+      dot.classList.add('loading');
+      refreshBtn.classList.add('spinning');
+      errorBanner.classList.remove('show');
+
+      try {
+        const data = await fetchStats();
+        
+        renderKPIs(data);
+        renderMachineChart(data);
+        renderManpowerChart(data);
+        renderPartsChart(data);
+        renderRecentRepairs(data);
+        renderManpowerTable(data);
+        renderCriticalParts(data);
+        if (!machinesList.length) initMachineHistoryTabs(data.machines || []);
+
+        /* Parts table */
+        allPartsData = data.spare_parts.parts || [];
+        document.getElementById('tab-all-count').textContent      = allPartsData.length;
+        document.getElementById('tab-critical-count').textContent = data.spare_parts.zero + data.spare_parts.breakdown;
+        document.getElementById('tab-low-count').textContent      = data.spare_parts.low;
+        document.getElementById('tab-ok-count').textContent       = data.spare_parts.ok;
+        renderPartsTable();
+
+      } catch (e) {
+        dot.classList.remove('loading');
+        errorBanner.querySelector('.error-msg').textContent = 'โหลดข้อมูลไม่สำเร็จ: ' + e.message + ' — ตรวจสอบว่า server กำลังทำงานอยู่';
+        errorBanner.classList.add('show');
+      } finally {
+        refreshBtn.classList.remove('spinning');
+      }
+    }
+
+    /* ── Countdown ── */
+    function startCountdown() {
+      clearInterval(countdownTimer);
+      countdown = REFRESH_INTERVAL;
+      document.getElementById('countdown').textContent = countdown;
+
+      countdownTimer = setInterval(() => {
+        countdown--;
+        document.getElementById('countdown').textContent = countdown;
+        if (countdown <= 0) {
+          clearInterval(countdownTimer);
+          loadDashboard().then(startCountdown);
+        }
+      }, 1000);
+    }
+
+    /* ── Home button: mobile = history.back, desktop = close window ── */
+    function goHome() {
+      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+      if (isMobile) {
+        history.back();
+      } else {
+        window.close();
+        /* fallback: ถ้า close ไม่ได้ (ไม่ได้เปิดจาก script) ให้ navigate กลับ */
+        setTimeout(() => { window.location.href = 'http://localhost:8000'; }, 150);
+      }
+    }
+
+    /* ── Events ── */
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+      clearInterval(countdownTimer);
+      loadDashboard().then(startCountdown);
+    });
+
+    document.getElementById('parts-filter-tabs').addEventListener('click', e => {
+      const tab = e.target.closest('.filter-tab');
+      if (!tab) return;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentFilter = tab.dataset.filter;
+      renderPartsTable();
+    });
+
+    document.getElementById('parts-search-inp').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      renderPartsTable();
+    });
+
+    /* ── Init ── */
+    loadDashboard().then(startCountdown);
+  </script>
+</body>
+</html>
